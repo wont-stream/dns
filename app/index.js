@@ -6,12 +6,21 @@ const db = await DB("./config.json");
 const onRun = async () => {
   let configUpdated = false;
 
-  if (!(await db.has("v6"))) {
-    await db.set("v6", "https://freedns.afraid.org/dynamic/update.php?");
+  if (!(await db.has("user"))) {
+    await db.set("user", "user.name");
     configUpdated = true;
   }
-  if (!(await db.has("v4"))) {
-    await db.set("v4", "https://freedns.afraid.org/dynamic/update.php?");
+  if (!(await db.has("pass"))) {
+    await db.set("pass", "pass.word");
+    configUpdated = true;
+  }
+
+  if (!(await db.has("hostv6"))) {
+    await db.set("hostv6", "wow.ipv6");
+    configUpdated = true;
+  }
+  if (!(await db.has("hostv4"))) {
+    await db.set("hostv4", "wow.ipv4");
     configUpdated = true;
   }
   if (!(await db.has("interval"))) {
@@ -25,6 +34,8 @@ const onRun = async () => {
     return setInterval(update, await db.get("interval"));
   }
 };
+
+const api = "freedns.afraid.org/nic/update";
 
 const lastIps = {
   v6: "",
@@ -55,11 +66,19 @@ const update = async () => {
 };
 
 const updatev6 = async () => {
-  return await fetch(await db.get("v6"));
+  return await fetch(
+    `https://${await db.get("user")}:${await db.get(
+      "pass"
+    )}@${api}?hostname=${await db.get("hostv6")}&myip=${lastIps.v6}`
+  );
 };
 
 const updatev4 = async () => {
-  return await fetch(await db.get("v4"));
+  return await fetch(
+    `https://${await db.get("user")}:${await db.get(
+      "pass"
+    )}@${api}?hostname=${await db.get("hostv4")}&myip=${lastIps.v4}`
+  );
 };
 
 onRun();
